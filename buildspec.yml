@@ -8,7 +8,7 @@ phases:
 
       - echo Logging in to Amazon ECR...
 
-      - aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com
+      - aws ecr get-login-password --region us-east-2 | docker login --username AWS --password-stdin 314806948291.dkr.ecr.us-east-2.amazonaws.com
  
   build:
 
@@ -16,9 +16,9 @@ phases:
 
       - echo Building the Docker image...
 
-      - docker build -t $AWS_REPOSITORY .
+      - docker build -t lambda .
 
-      - docker tag $AWS_REPOSITORY:latest $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$AWS_REPOSITORY:latest
+      - docker tag lambda:latest 314806948291.dkr.ecr.us-east-2.amazonaws.com/lambda:latest
  
   post_build:
 
