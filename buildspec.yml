@@ -17,10 +17,10 @@ phases:
       - echo Pushing the Docker image to Amazon ECR...
       - docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$AWS_REPOSITORY:latest
       - echo Updating Lambda function with the new image...
-      - aws lambda update-function-code --function-name randmalay --image-uri $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$AWS_REPOSITORY:latest
+      - aws lambda update-function-code --function-name your_lambda_function_name --image-uri $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$AWS_REPOSITORY:latest
 
 env:
   variables:
-    AWS_REGION: "us-east-2"              # Your AWS region
-    AWS_ACCOUNT_ID: "314806948291"       # Your AWS Account ID
-    AWS_REPOSITORY: "lambda"             # ECR repository name
+    AWS_REGION: "us-east-2"              # Replace with your AWS region
+    AWS_ACCOUNT_ID: "314806948291"       # Replace with your AWS Account ID
+    AWS_REPOSITORY: "lambda-repo"        # Replace with your ECR repository name
