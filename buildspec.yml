@@ -16,8 +16,21 @@ phases:
     commands:
       - echo Pushing the Docker image to Amazon ECR...
       - docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$AWS_REPOSITORY:latest
-      - echo Updating Lambda function with the new image...
-      - aws lambda update-function-code --function-name your_lambda_function_name --image-uri $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$AWS_REPOSITORY:latest
+      - echo Checking if Lambda function exists...
+      - >
+        if ! aws lambda get-function --function-name myLambdaFunction > /dev/null 2>&1; then
+          echo "Creating Lambda function..."
+          aws lambda create-function --function-name myLambdaFunction \
+            --package-type Image \
+            --code ImageUri=$AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$AWS_REPOSITORY:latest \
+            --role arn:aws:iam::$AWS_ACCOUNT_ID:role/LambdaExecutionRole \
+            --architectures x86_64 \
+            --timeout 15 \
+            --memory-size 128
+        else
+          echo "Updating Lambda function..."
+          aws lambda update-function-code --function-name myLambdaFunction --image-uri $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$AWS_REPOSITORY:latest
+        fi
 
 env:
   variables:
