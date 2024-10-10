@@ -1,21 +1,38 @@
 version: 0.2
 
 phases:
-  install:
-    runtime-versions:
-      nodejs: 14  # Specify your Node.js version
+  pre_build:
     commands:
-      - echo Installing dependencies...
-      - npm install  # Install dependencies from package.json
+      - echo Logging in to Amazon ECR...
+      - aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com
+
   build:
     commands:
-      - echo Building the application...
-      - npm run build  # If you have a build step in your package.json
+      - echo Building the Docker image...
+      - docker build -t $AWS_REPOSITORY .
+
   post_build:
     commands:
-      - echo Packaging the application for Lambda...
-      - zip -r my-app.zip .  # Adjust the zip name as needed
+      - echo Pushing the Docker image to Amazon ECR...
+      - docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$AWS_REPOSITORY:latest
+      - echo Checking if Lambda function exists...
+      - |
+        if ! aws lambda get-function --function-name myLambdaFunction > /dev/null 2>&1; then
+          echo "Creating Lambda function..."
+          aws lambda create-function --function-name myLambdaFunction \
+            --package-type Image \
+            --code ImageUri=$AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$AWS_REPOSITORY:latest \
+            --role arn:aws:iam::$AWS_ACCOUNT_ID:role/LambdaExecutionRole \
+            --architectures x86_64 \
+            --timeout 15 \
+            --memory-size 128
+        else
+          echo "Updating Lambda function..."
+          aws lambda update-function-code --function-name myLambdaFunction --image-uri $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$AWS_REPOSITORY:latest
+        fi
 
-artifacts:
-  files:
-    - my-app.zip  # The zipped artifact to be deployed
+env:
+  variables:
+    AWS_REGION: "us-east-2"              # Replace with your AWS region
+    AWS_ACCOUNT_ID: "314806948291"       # Replace with your AWS Account ID
+    AWS_REPOSITORY: "lambda-repo"        # Replace with your ECR repository name
