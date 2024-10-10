@@ -1,0 +1,13 @@
+service: my-nodejs-app
+
+provider:
+  name: aws
+  runtime: nodejs14.x
+
+functions:
+  app:
+    handler: server.handler
+    events:
+      - http:
+          path: graphql
+          method: post
