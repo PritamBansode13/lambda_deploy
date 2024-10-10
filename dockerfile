@@ -1,8 +1,4 @@
-# Use the official Node.js image as the base
-FROM node:14
-
-# Set the working directory
-WORKDIR /usr/src/app
+FROM public.ecr.aws/lambda/nodejs:14
 
 # Copy package.json and package-lock.json
 COPY package*.json ./
@@ -10,11 +6,8 @@ COPY package*.json ./
 # Install dependencies
 RUN npm install
 
-# Copy the rest of the application files
+# Copy your application files
 COPY . .
 
-# Expose port (not used in Lambda, but for local testing)
-EXPOSE 5000
-
-# Command to run the application
-CMD ["npm", "start"]
+# Command to run the Lambda function
+CMD ["server.handler"]  // Change this according to your server.js structure
