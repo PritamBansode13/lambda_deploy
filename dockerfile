@@ -1,17 +1,14 @@
-# Use the official AWS Lambda Node.js 14 runtime as a base image
+# Use the official Node.js image as the base image
 FROM public.ecr.aws/lambda/nodejs:14
 
-# Set the working directory
-WORKDIR /var/task
+# Copy package.json and package-lock.json
+COPY package*.json ./
 
-# Copy package.json and package-lock.json files for dependency installation
-COPY package.json package-lock.json ./
-
-# Install dependencies
+# Install the dependencies
 RUN npm install
 
-# Copy the rest of the application code
+# Copy the rest of your application code
 COPY . .
 
-# Expose the Lambda handler
-CMD ["server.handler"]
+# Command to run the Lambda function
+CMD [ "server.handler" ]  # Replace "handler" with the name of your exported handler function
